@@ -160,11 +160,7 @@ class StripeService {
           }
       }
 
-      const hasPaymentSetup = !!(data.configuration?.recipient?.default_outbound_destination &&  
-                              typeof data.configuration?.recipient?.default_outbound_destination  == 'object')
-
-      return hasPaymentSetup
-
+      return !!(data.configuration?.recipient?.default_outbound_destination &&  typeof data.configuration?.recipient?.default_outbound_destination  == 'object')
     } catch (error) {
       console.error('[Stripe] Error verifying account setup:', error)
       throw error
