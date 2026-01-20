@@ -1,0 +1,16 @@
+import '@/envConfig'
+import { z } from 'zod'
+
+const envSchema = z.object({
+  DATABASE_URL: z.string().min(1),
+  STRIPE_SECRET_KEY: z.string().min(1),
+  STRIPE_API_VERSION: z.string().min(1)
+
+})
+
+export const env = envSchema.parse({
+  DATABASE_URL: process.env.DATABASE_URL,
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+  STRIPE_API_VERSION: process.env.STRIPE_API_VERSION
+
+})
