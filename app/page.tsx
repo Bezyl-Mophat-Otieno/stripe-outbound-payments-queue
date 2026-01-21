@@ -3,10 +3,10 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowRight, Lock, RefreshCw, Shield, Zap } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
 
 export default function Home() {
   const router = useRouter()
@@ -19,7 +19,7 @@ export default function Home() {
   }, [user, isLoading, router])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-secondary to-background">
+    <div className="min-h-screen bg-linear-to-br from-background via-secondary to-background">
       {/* Navigation */}
       <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">

@@ -1,17 +1,14 @@
 'use client'
 
-import React from "react"
-
-import { useState } from 'react'
+import React, { useState } from "react"
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertCircle } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Eye, EyeOff } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function SignupPage() {
   const router = useRouter()

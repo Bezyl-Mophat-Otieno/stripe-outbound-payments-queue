@@ -3,8 +3,7 @@ import { verifyRefreshToken, generateAccessToken } from '@/lib/jwt'
 
 export async function POST(request: NextRequest) {
   try {
-    const refreshToken = request.headers.get('x-refresh-token') || 
-                        (await request.json().then(b => b.refreshToken).catch(() => null))
+    const refreshToken = request.headers.get('x-refresh-token')
 
     if (!refreshToken) {
       return NextResponse.json(

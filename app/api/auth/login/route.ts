@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { users } from '@/db/schema/users'
-import { hashPassword, verifyPassword } from '@/lib/password'
+import { verifyPassword } from '@/lib/password'
 import { generateAccessToken, generateRefreshToken } from '@/lib/jwt'
 import { eq } from 'drizzle-orm'
 
