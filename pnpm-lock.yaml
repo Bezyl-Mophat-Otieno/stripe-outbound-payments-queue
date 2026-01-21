@@ -29,6 +29,9 @@ importers:
       '@neondatabase/serverless':
         specifier: latest
         version: 1.0.2
+      '@next/env':
+        specifier: ^16.1.4
+        version: 16.1.4
       '@op-engineering/op-sqlite':
         specifier: latest
         version: 15.2.3(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.8)(bufferutil@4.1.0)(react@19.2.0))(react@19.2.0)
@@ -1718,6 +1721,9 @@ packages:
 
   '@next/env@16.0.10':
     resolution: {integrity: sha512-8tuaQkyDVgeONQ1MeT9Mkk8pQmZapMKFh5B+OrFUlG3rVmYTXcXlBetBgTurKXGaIZvkoqRT9JL5K3phXcgang==}
+
+  '@next/env@16.1.4':
+    resolution: {integrity: sha512-gkrXnZyxPUy0Gg6SrPQPccbNVLSP3vmW8LU5dwEttEEC1RwDivk8w4O+sZIjFvPrSICXyhQDCG+y3VmjlJf+9A==}
 
   '@next/eslint-plugin-next@16.1.4':
     resolution: {integrity: sha512-38WMjGP8y+1MN4bcZFs+GTcBe0iem5GGTzFE5GWW/dWdRKde7LOXH3lQT2QuoquVWyfl2S0fQRchGmeacGZ4Wg==}
@@ -8631,6 +8637,8 @@ snapshots:
       '@types/pg': 8.16.0
 
   '@next/env@16.0.10': {}
+
+  '@next/env@16.1.4': {}
 
   '@next/eslint-plugin-next@16.1.4':
     dependencies:

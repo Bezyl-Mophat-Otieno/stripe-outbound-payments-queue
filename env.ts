@@ -5,7 +5,8 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   STRIPE_SECRET_KEY: z.string().min(1),
   STRIPE_API_VERSION: z.string().min(1),
-  BASE_URL: z.string().min(1)
+  BASE_URL: z.string().min(1),
+  STRIPE_BASE_URL: z.string().min(1)
 
 })
 
@@ -13,6 +14,6 @@ export const env = envSchema.parse({
   DATABASE_URL: process.env.DATABASE_URL,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   STRIPE_API_VERSION: process.env.STRIPE_API_VERSION,
-  BASE_URL: process.env.BASE_URL
-
+  BASE_URL: process.env.BASE_URL,
+  STRIPE_BASE_URL: process.env.STRIPE_BASE_URL
 })

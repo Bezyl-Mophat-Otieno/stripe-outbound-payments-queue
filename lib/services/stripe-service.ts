@@ -3,13 +3,59 @@ import 'server-only'
 import Stripe from 'stripe'
 import { env } from '@/env'
 
-export type StripeAccountSetupParams = Stripe.V2.Core.AccountCreateParams
+export interface StripeAccountSetupParams  {
+                    name: string
+                    email:string,
+                    legal_entity_data: {
+                        business_type:'individual' | 'business' | 'company',
+                        country: string,
+                    },
+                    configuration: {
+                        recipient_data: {
+                        features: {
+                            bank_accounts: {
+                            local: {
+                                requested: boolean
+                            }
+                            }
+                        }
+                }
+        }
+
+} 
 
 export type StripeAccountLinkParams = Stripe.V2.Core.AccountLinkCreateParams
 
-export type Account = Stripe.V2.Core.Account
+export interface Account {
+  id: string,
+  object:string,
+  applied_configurations:string[],
+  configuration?: Record<string, any>,
+  created: string,
+  legal_entity_data: Record<string, any>,
+  email: string,
+  metadata?: Record<string, any>,
+  name: string,
+  requirements: Record<string, any>,
+  livemode: boolean
+}
 
-export type AccountLink = Stripe.V2.Core.AccountLink
+export interface AccountLink {
+  object: string,
+  account: string,
+  created: string,
+  expires_at: string,
+  url: string,
+  use_case: {
+    account_onboarding: {
+      configurations: Record<string, any>[],
+      refresh_url: string,
+      return_url: string
+    },
+    type:  'account_onboarding'  | 'account_update'
+  },
+  livemode: boolean
+}
 
 type DefaultOutboundDestination = {
   id: string
@@ -29,6 +75,12 @@ class StripeService {
       // @ts-ignore
       apiVersion: '2024-07-16.preview-v2',
     })
+  }
+
+  private readonly stripeHeaders = {
+        Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
+        "Content-Type": "application/json",
+        "Stripe-Version": env.STRIPE_API_VERSION,
   }
 
   /**
@@ -54,8 +106,13 @@ class StripeService {
     params: StripeAccountSetupParams
   ): Promise<Account> {
     try {
-      const account = await this.client.v2.core.accounts.create(params)
-      return account
+      const data = await fetch(`${env.STRIPE_BASE_URL}/accounts`, {
+        method: 'POST',
+        headers: this.stripeHeaders,
+        body: JSON.stringify(params)
+      })
+      const jsonResponse = await data.json()
+      return jsonResponse
     } catch (error) {
       console.error('[Stripe] Error setting up account:', error)
       throw error
@@ -69,9 +126,9 @@ class StripeService {
     params: StripeAccountLinkParams
   ): Promise<AccountLink> {
     try {
-      const accountLink = await this.client.v2.core.accountLinks.create(params)
-
-      return accountLink
+      const data = await fetch(`${env.STRIPE_BASE_URL}/account_links`, { method: 'POST', body: JSON.stringify(params),  headers: this.stripeHeaders })
+      const jsonResponse = await data.json()
+      return jsonResponse
     } catch (error) {
       console.error('[Stripe] Error generating account link:', error)
       throw error
@@ -141,26 +198,24 @@ class StripeService {
    */
   async verifyPaymentSetup(accountId: string): Promise<boolean> {
     try {
-    const headers = {
-    headers: {
-        Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
-        "Content-Type": "application/json",
-        "Stripe-Version": env.STRIPE_API_VERSION,
-    },
-    };
+      const params = {
+        include: 'configuration.recipient_data'
+      }
+      const url = new URL(`${env.STRIPE_BASE_URL}/accounts/${accountId}`)
+      const searchParams = new URLSearchParams(params)
+      url.search = searchParams.toString()
       const response = await fetch(
-        `https://api.stripe.com/v2/accounts/${accountId}`,headers,
+        url, { method: 'GET', headers: this.stripeHeaders },
       );
 
       const data = await response.json() as Account & {
           configuration?: {
-            recipient?: {
+            recipient_data?: {
             default_outbound_destination?: DefaultOutboundDestination
             }
           }
       }
-
-      return !!(data.configuration?.recipient?.default_outbound_destination &&  typeof data.configuration?.recipient?.default_outbound_destination  == 'object')
+      return !!(data.configuration?.recipient_data?.default_outbound_destination?.id)
     } catch (error) {
       console.error('[Stripe] Error verifying account setup:', error)
       throw error
@@ -172,8 +227,9 @@ class StripeService {
    */
   async getAccountDetails(accountId: string): Promise<Account> {
     try {
-      const account = await this.client.v2.core.accounts.retrieve(accountId)
-      return account
+      const data = await fetch(`${env.STRIPE_BASE_URL}/account/${accountId}`, { headers: this.stripeHeaders})
+      const jsonResponse = await data.json()
+      return jsonResponse
     } catch (error) {
       console.error('[Stripe] Error retrieving account details:', error)
       throw error

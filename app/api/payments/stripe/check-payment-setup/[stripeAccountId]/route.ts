@@ -6,7 +6,7 @@ export async function GET (_: NextRequest, {params}: { params: Promise<{stripeAc
     const {stripeAccountId} = await params
     const hasPaymentSetup  = await stripeService.verifyPaymentSetup(stripeAccountId)
 
-    if(!hasPaymentSetup) NextResponse.json({success: false, message: 'User has yet to setup his/her payment details'}, { status: 404 })
+    if(!hasPaymentSetup) return NextResponse.json({success: false, message: 'User is yet to setup his/her payment details'}, { status: 404 })
 
     return NextResponse.json({success: true, message: 'User payment details have been sucessfully setup', data: hasPaymentSetup}, { status: 200 })
 
