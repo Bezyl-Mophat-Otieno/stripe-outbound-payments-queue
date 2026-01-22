@@ -84,22 +84,6 @@ class StripeService {
   }
 
   /**
-   * Helper method to build refresh and return URLs
-   */
-  private buildUrls(
-    baseUrl: string,
-    accountId: string
-  ): { refreshUrl: string; returnUrl: string } {
-    const refreshUrl = `${baseUrl}/api/stripe/account/setup?account_id=${accountId}`
-    const returnUrl = `${baseUrl}/stripe/account/success?account_id=${accountId}`
-
-    return {
-      refreshUrl,
-      returnUrl,
-    }
-  }
-
-  /**
    * Create a new Stripe connected account for a user
    */
   async setupAccount(
@@ -140,11 +124,10 @@ class StripeService {
    */
   async createOnboardingLink(
     accountId: string,
-    baseUrl: string
   ): Promise<string> {
     try {
-      const { refreshUrl, returnUrl } = this.buildUrls(baseUrl, accountId)
-
+    const refreshUrl = `${env.BASE_URL}/dashboard?expired=true`
+    const returnUrl = `${env.BASE_URL}/dashboard?success=true`
       const accountLink = await this.generateAccountLink({
         account: accountId,
         use_case: {
@@ -169,10 +152,11 @@ class StripeService {
    */
   async createUpdateLink(
     accountId: string,
-    baseUrl: string
   ): Promise<string> {
     try {
-      const { refreshUrl, returnUrl } = this.buildUrls(baseUrl, accountId)
+
+    const refreshUrl = `${env.BASE_URL}/dashboard/profile?expired=true`
+    const returnUrl = `${env.BASE_URL}/dashboard/profile?success=true`
 
       const accountLink = await this.generateAccountLink({
         account: accountId,

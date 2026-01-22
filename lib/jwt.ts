@@ -16,7 +16,7 @@ export function generateRefreshToken(userId: string) {
 export function verifyAccessToken(token: string) {
   try {
     return jwt.verify(token, JWT_SECRET) as { userId: string; iat: number; exp: number }
-  } catch (error) {
+  } catch {
     return null
   }
 }
@@ -24,7 +24,7 @@ export function verifyAccessToken(token: string) {
 export function verifyRefreshToken(token: string) {
   try {
     return jwt.verify(token, JWT_REFRESH_SECRET) as { userId: string; iat: number; exp: number }
-  } catch (error) {
+  } catch {
     return null
   }
 }
