@@ -3,8 +3,8 @@ import { useAuthStore } from "@/store/auth-store"
 import { useEffect, useState } from "react"
 
 export const useAuth = ()=>{
-      const [isLoading, setIsLoading] = useState(true)
-      const {setLoggedInUser, clearLoggedInUser, user} = useAuthStore()
+const [isLoading, setIsLoading] = useState(true)
+const {setLoggedInUser, clearLoggedInUser, user, isStripeOnboarded, updateLoggedInUser} = useAuthStore()
 
 async function fetchProfile(token: string) {
     try {
@@ -124,6 +124,8 @@ async function fetchProfile(token: string) {
 
     return {
         user,
+        updateLoggedInUser,
+        isStripeOnboarded,
         isLoading,
         signup,
         login,

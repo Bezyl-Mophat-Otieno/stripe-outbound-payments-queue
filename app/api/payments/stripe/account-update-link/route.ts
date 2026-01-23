@@ -29,7 +29,8 @@ export async function POST(request: NextRequest) {
 
     if (!user.stripeAccountId) {
       return NextResponse.json(
-        { error: 'Stripe account not found' },
+        { success: true,
+          message: 'Stripe account not found' },
         { status: 404 }
       )
     }
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     if(!updateLink || !z.url().safeParse(updateLink).success ) NextResponse.json({success: false, message: 'Failed to create Stripe Account Link'}, { status: 404 })
 
-    return NextResponse.json({success: true, message: 'Stripe Account Link Created Successfully', data: updateLink}, { status: 201 })
+    return NextResponse.json({success: true, message: 'Stripe Account Link Created Successfully', data: {updateLink}}, { status: 201 })
   } catch (error) {
     console.error('[Stripe] Account update link error:', error)
     return NextResponse.json(

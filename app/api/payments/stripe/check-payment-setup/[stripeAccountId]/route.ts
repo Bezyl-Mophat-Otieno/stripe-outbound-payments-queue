@@ -33,7 +33,7 @@ export async function GET(
     const hasPaymentSetup  = await stripeService.verifyPaymentSetup(stripeAccountId)
     if(!hasPaymentSetup) return NextResponse.json({success: false, message: 'User is yet to setup his/her payment details'}, { status: 404 })
 
-    return NextResponse.json({success: true, message: 'User payment details have been sucessfully setup', data: hasPaymentSetup}, { status: 200 })
+    return NextResponse.json({success: true, message: 'User payment details have been sucessfully setup', data: {hasPaymentSetup}}, { status: 200 })
 
   } catch (error) {
     console.error('[Stripe] Check payment status error:', error)

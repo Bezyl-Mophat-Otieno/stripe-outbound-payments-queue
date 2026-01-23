@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1)
     if (!user.stripeAccountId) {
       return NextResponse.json(
-        { error: 'Stripe account not found' },
+        {success: true, message: 'Stripe account not found' },
         { status: 404 }
       )
     }
@@ -38,12 +38,14 @@ export async function POST(request: NextRequest) {
     )
 
     return NextResponse.json({
-      url: paymentMethodLink,
+      success: true,
+      message: 'Successfully generated a payment method setup link',
+      data: {paymentMethodLink},
     })
   } catch (error) {
     console.error('[Stripe] Payment method setup link error:', error)
     return NextResponse.json(
-      { error: 'Failed to generate payment method setup link' },
+      { success: true, message: 'Failed to generate payment method setup link' },
       { status: 500 }
     )
   }

@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     if (!user.length) {
       return NextResponse.json(
-        { error: 'User not found' },
+        { success: false, message: 'User not found' },
         { status: 404 }
       )
     }
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             success: true, 
             message: 'Stripe Account Created Successfully',
-            data: currentUser.stripeAccountId
+            data: {stripeAccountId: currentUser.stripeAccountId}
         }, { status: 200 })
     }
 
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       .set({ stripeAccountId: account.id })
       .where(eq(users.id, userId))
 
-    return NextResponse.json({success: true, message: 'Stripe Account Created Successfully', data: account.id}, { status: 201 })
+    return NextResponse.json({success: true, message: 'Stripe Account Created Successfully', data: {stripeAccountId: account.id}}, { status: 201 })
 
   } catch (error) {
     console.error('[Stripe] Account setup error:', error)

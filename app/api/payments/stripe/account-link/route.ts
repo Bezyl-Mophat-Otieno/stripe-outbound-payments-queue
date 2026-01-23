@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     if(!accountLink || !z.url().safeParse(accountLink).success ) NextResponse.json({success: false, message: 'Failed to create a stripe account link'}, { status: 404 })
 
-    return NextResponse.json({success: true, message: 'Stripe Account Link Created Successfully', data: accountLink}, { status: 201 })
+    return NextResponse.json({success: true, message: 'Stripe Account Link Created Successfully', data: {accountLink}}, { status: 201 })
   } catch (error) {
     console.error('[Stripe] Account link error:', error)
     return NextResponse.json(

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { users } from '@/db/schema/users'
-import { hashPassword, verifyPassword } from '@/lib/password'
+import { hashPassword } from '@/lib/password'
 import { generateAccessToken, generateRefreshToken } from '@/lib/jwt'
 import { eq } from 'drizzle-orm'
 import { v4 as uuidv4 } from 'uuid'
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       id: userId,
       fullName,
       email,
-      password, // In production, you might not want to store plain password
+      password,
       hashedPassword,
     })
 
