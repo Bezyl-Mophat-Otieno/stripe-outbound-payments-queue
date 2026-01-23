@@ -1,50 +1,46 @@
-import { users } from '@/db/schema/users'
-import { drizzle } from 'drizzle-orm/node-postgres'
-import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod"
-import { Pool } from 'pg'
-
+import { users } from '@/db/schema/users';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from 'drizzle-zod';
+import { Pool } from 'pg';
 
 type Schema = {
-  users: typeof users
-}
+  users: typeof users;
+};
 
 export const schema: Schema = {
   users,
-}
+};
 
-let dbInstance: ReturnType<typeof drizzle>
-let pool: Pool
-
+let dbInstance: ReturnType<typeof drizzle>;
+let pool: Pool;
 
 function getPool() {
   if (!pool) {
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production'
-        ? { rejectUnauthorized: false }
-        : false,
-    })
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    });
   }
-  return pool
+  return pool;
 }
 
 function getDbInstance() {
   if (!dbInstance) {
-    dbInstance = drizzle(getPool(), { schema })
+    dbInstance = drizzle(getPool(), { schema });
   }
-  return dbInstance
+  return dbInstance;
 }
 
 // Utility to Generate Zod Schemas from Drizzle Schema
 export function createModelSchemas<T extends keyof typeof schema>(tableName: T) {
-  const table = schema[tableName]
+  const table = schema[tableName];
 
   return {
     insert: createInsertSchema(table),
     select: createSelectSchema(table),
     update: createUpdateSchema(table),
     delete: createUpdateSchema(table),
-  }
+  };
 }
 
-export const db = getDbInstance()
+export const db = getDbInstance();

@@ -1,22 +1,22 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowRight, Lock, RefreshCw, Shield, Zap } from 'lucide-react'
-import { useAuth } from '@/hooks/use-auth'
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowRight, Lock, RefreshCw, Shield, Zap } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function Home() {
-  const router = useRouter()
-  const { user, isLoading } = useAuth()
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
     if (!isLoading && user) {
-      router.push('/dashboard')
+      router.push('/dashboard');
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading, router]);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-background via-secondary to-background">
@@ -51,17 +51,24 @@ export default function Home() {
             Secure authentication made simple
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
-            JWT-based authentication with automatic token refresh, Drizzle ORM, and modern React patterns.
-            Built with Next.js and shadcn/ui.
+            JWT-based authentication with automatic token refresh, Drizzle ORM, and modern React
+            patterns. Built with Next.js and shadcn/ui.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link href="/signup">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
+              <Button
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+              >
                 Create account <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
             <Link href="/login">
-              <Button size="lg" variant="outline" className="border-border hover:bg-muted bg-transparent">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-border hover:bg-muted bg-transparent"
+              >
                 Sign in
               </Button>
             </Link>
@@ -156,5 +163,5 @@ export default function Home() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

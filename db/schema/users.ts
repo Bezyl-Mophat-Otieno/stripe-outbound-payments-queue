@@ -1,4 +1,4 @@
-import { pgTable, timestamp, varchar } from 'drizzle-orm/pg-core'
+import { pgTable, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('stripe_users', {
   id: varchar('id', { length: 36 }).primaryKey(),
@@ -9,7 +9,7 @@ export const users = pgTable('stripe_users', {
   stripeAccountId: varchar('stripe_account_id', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-})
+});
 
-export type User = typeof users.$inferSelect
-export type NewUser = typeof users.$inferInsert
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;

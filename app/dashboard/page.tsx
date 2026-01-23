@@ -1,22 +1,22 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { DashboardSidebar } from '@/components/dashboard-sidebar'
-import { StripeSetupModal } from '@/components/stripe-setup-modal'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useAuth } from '@/hooks/use-auth'
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { DashboardSidebar } from '@/components/dashboard-sidebar';
+import { StripeSetupModal } from '@/components/stripe-setup-modal';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function DashboardPage() {
-  const router = useRouter()
-  const { user, isLoading, isStripeOnboarded } = useAuth()
-  const [showStripeModal, setShowStripeModal] = useState(!isStripeOnboarded)
+  const router = useRouter();
+  const { user, isLoading, isStripeOnboarded } = useAuth();
+  const [showStripeModal, setShowStripeModal] = useState(!isStripeOnboarded);
 
   useEffect(() => {
     if (!user) {
-      router.push('/login')
+      router.push('/login');
     }
-  }, [user, router])
+  }, [user, router]);
 
   if (isLoading) {
     return (
@@ -26,11 +26,11 @@ export default function DashboardPage() {
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!user) {
-    return null
+    return null;
   }
 
   return (
@@ -46,7 +46,9 @@ export default function DashboardPage() {
             <Card className="mb-6 border-0 shadow-lg bg-linear-to-br from-primary/5 to-accent/5">
               <CardHeader>
                 <CardTitle className="text-3xl">Welcome, {user.fullName}!</CardTitle>
-                <CardDescription>You&apos;re logged in with secure JWT authentication</CardDescription>
+                <CardDescription>
+                  You&apos;re logged in with secure JWT authentication
+                </CardDescription>
               </CardHeader>
             </Card>
 
@@ -58,11 +60,15 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div>
-                    <label className="text-xs font-semibold text-muted-foreground uppercase">Full Name</label>
+                    <label className="text-xs font-semibold text-muted-foreground uppercase">
+                      Full Name
+                    </label>
                     <p className="text-foreground">{user.fullName}</p>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-muted-foreground uppercase">Email</label>
+                    <label className="text-xs font-semibold text-muted-foreground uppercase">
+                      Email
+                    </label>
                     <p className="text-foreground">{user.email}</p>
                   </div>
                 </CardContent>
@@ -75,12 +81,16 @@ export default function DashboardPage() {
                 <CardContent>
                   {user.stripeAccountId ? (
                     <div>
-                      <label className="text-xs font-semibold text-muted-foreground uppercase">Account Active</label>
+                      <label className="text-xs font-semibold text-muted-foreground uppercase">
+                        Account Active
+                      </label>
                       <p className="text-green-600 font-medium">Connected</p>
                     </div>
                   ) : (
                     <div>
-                      <label className="text-xs font-semibold text-muted-foreground uppercase">Status</label>
+                      <label className="text-xs font-semibold text-muted-foreground uppercase">
+                        Status
+                      </label>
                       <p className="text-amber-600 font-medium">Pending Setup</p>
                     </div>
                   )}
@@ -94,5 +104,5 @@ export default function DashboardPage() {
       {/* Stripe Setup Modal */}
       <StripeSetupModal isOpen={showStripeModal} onOpenChange={setShowStripeModal} />
     </div>
-  )
+  );
 }

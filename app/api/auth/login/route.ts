@@ -1,46 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-import { users } from '@/db/schema/users'
-import { verifyPassword } from '@/lib/password'
-import { generateAccessToken, generateRefreshToken } from '@/lib/jwt'
-import { eq } from 'drizzle-orm'
+import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { users } from '@/db/schema/users';
+import { verifyPassword } from '@/lib/password';
+import { generateAccessToken, generateRefreshToken } from '@/lib/jwt';
+import { eq } from 'drizzle-orm';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { email, password } = body
+    const body = await request.json();
+    const { email, password } = body;
 
     if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
     }
 
-    const userList = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
+    const userList = await db.select().from(users).where(eq(users.email, email));
 
     if (userList.length === 0) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const user = userList[0]
-    const passwordMatch = await verifyPassword(password, user.hashedPassword)
+    const user = userList[0];
+    const passwordMatch = await verifyPassword(password, user.hashedPassword);
 
     if (!passwordMatch) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const accessToken = generateAccessToken(user.id)
-    const refreshToken = generateRefreshToken(user.id)
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
 
     return NextResponse.json(
       {
@@ -54,12 +42,9 @@ export async function POST(request: NextRequest) {
           'X-Refresh-Token': refreshToken,
         },
       }
-    )
+    );
   } catch (error) {
-    console.error('[v0] Login error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    console.error('[v0] Login error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
