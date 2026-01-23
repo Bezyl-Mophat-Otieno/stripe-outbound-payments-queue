@@ -9,25 +9,11 @@ import { useAuth } from '@/hooks/use-auth';
 import { DashboardSidebar } from '@/components/dashboard-sidebar';
 import { ApiResponse } from '@/types';
 
-interface PaymentStatus {
-  paymentMethodSetup: boolean;
-  setupStatus: {
-    isComplete: boolean;
-    charges_enabled: boolean;
-    payouts_enabled: boolean;
-    requirements: {
-      currently_due: string[];
-      eventually_due: string[];
-      past_due: string[];
-      pending_verification: string[];
-    };
-  };
-}
 
 export default function ProfilePage() {
   const router = useRouter();
   const { user, isLoading, isStripeOnboarded } = useAuth();
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
@@ -42,16 +28,21 @@ export default function ProfilePage() {
     async function fetchPaymentStatus() {
       try {
         setLoading(true);
+        const token = localStorage.getItem('accessToken');
+
         const response = await fetch(
-          `/api/payments/stripe/check-payment-status/${user?.stripeAccountId}`
+          `/api/payments/stripe/check-payment-status/${user?.stripeAccountId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            }
+          }
         );
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch payment status');
+        const paymentStatusResponse = await response.json() as ApiResponse;
+        if (!paymentStatusResponse.success) {
+          return setError(paymentStatusResponse.message)
         }
-
-        const data = await response.json();
-        setPaymentStatus(data);
+        setPaymentStatus(paymentStatusResponse.data.hasPaymentSetup as boolean);
       } catch (err) {
         console.error('[v0] Error fetching payment status:', err);
         setError(err instanceof Error ? err.message : 'Failed to load payment status');
@@ -74,13 +65,9 @@ export default function ProfilePage() {
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate update link');
-      }
-
       const accountUpdateResponse = (await response.json()) as ApiResponse;
       if (!accountUpdateResponse.success) {
-        setError(accountUpdateResponse.message);
+        return setError(accountUpdateResponse.message);
       }
       globalThis.location.href = accountUpdateResponse.data.updateLink as string;
     } catch (err) {
@@ -185,7 +172,7 @@ export default function ProfilePage() {
                     <CardTitle>Stripe Account</CardTitle>
                     <CardDescription>Manage your connected Stripe account</CardDescription>
                   </div>
-                  <Button onClick={handleUpdateStripeAccount} className="gap-2" size="sm">
+                  <Button onClick={handleUpdateStripeAccount} className="gap-2 cursor-pointer" size="sm">
                     <ArrowUpRight className="w-4 h-4" />
                     Update Details
                   </Button>
@@ -214,72 +201,23 @@ export default function ProfilePage() {
                         <label className="text-sm font-semibold text-muted-foreground">
                           Setup Status
                         </label>
-
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary/50">
-                            {paymentStatus.setupStatus.charges_enabled ? (
-                              <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                            ) : (
-                              <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0" />
-                            )}
-                            <div className="text-sm">
-                              <p className="font-medium text-foreground">Charges Enabled</p>
-                              {paymentStatus.setupStatus.charges_enabled && (
-                                <p className="text-xs text-muted-foreground">Ready</p>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary/50">
-                            {paymentStatus.setupStatus.payouts_enabled ? (
-                              <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                            ) : (
-                              <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0" />
-                            )}
-                            <div className="text-sm">
-                              <p className="font-medium text-foreground">Payouts Enabled</p>
-                              {paymentStatus.setupStatus.payouts_enabled && (
-                                <p className="text-xs text-muted-foreground">Ready</p>
-                              )}
-                            </div>
-                          </div>
+                        <div className="flex items-center gap-2 text-sm text-green-600">
+                          <CheckCircle2 className="w-4 h-4" />
+                          Payment method configured
                         </div>
                       </div>
-
-                      {/* Required Documents */}
-                      {paymentStatus.setupStatus.requirements.currently_due.length > 0 && (
-                        <div className="pt-4">
-                          <label className="text-sm font-semibold text-muted-foreground">
-                            Items Due
-                          </label>
-                          <ul className="mt-2 space-y-2">
-                            {paymentStatus.setupStatus.requirements.currently_due.map((item) => (
-                              <li
-                                key={item}
-                                className="text-sm text-foreground flex items-center gap-2"
-                              >
-                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {/* Payment Method Setup */}
-                      {!paymentStatus.paymentMethodSetup && (
-                        <div className="pt-4">
-                          <Button
-                            onClick={handleSetupPaymentMethod}
-                            variant="outline"
-                            className="w-full bg-transparent"
-                          >
-                            Setup Payment Method
-                          </Button>
-                        </div>
-                      )}
                     </>
-                  ) : null}
+                  ) : (
+                    <div className="pt-4">
+                      <Button
+                        onClick={handleSetupPaymentMethod}
+                        variant="outline"
+                        className="w-full bg-transparent"
+                      >
+                        Setup Payment Method
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}

@@ -31,12 +31,12 @@ export default function Home() {
           </div>
           <div className="flex gap-3">
             <Link href="/login">
-              <Button variant="ghost" className="text-foreground hover:bg-muted">
+              <Button variant="ghost" className="text-foreground hover:bg-muted cursor-pointer">
                 Sign in
               </Button>
             </Link>
             <Link href="/signup">
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer">
                 Get started
               </Button>
             </Link>
