@@ -58,7 +58,7 @@ export default function Home() {
             <Link href="/signup">
               <Button
                 size="lg"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2  cursor-pointer"
               >
                 Create account <ArrowRight className="w-4 h-4" />
               </Button>
@@ -67,7 +67,7 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-border hover:bg-muted bg-transparent"
+                className="border-border hover:bg-muted bg-transparent  cursor-pointer"
               >
                 Sign in
               </Button>

@@ -24,7 +24,7 @@ export function StripeSetupModal({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, updateLoggedInUser } = useAuth();
+  const { user, updateLoggedInUser, isLoading } = useAuth();
   const [state, setState] = useState<StripeSetupState>('initializing');
   const [error, setError] = useState<string>('');
   const [countdown, setCountdown] = useState(5);
@@ -51,7 +51,7 @@ export function StripeSetupModal({
 
   // Create Stripe account on modal open
   useEffect(() => {
-    if (!isOpen || !user || state !== 'initializing') return;
+    if (!isOpen || !user || state !== 'initializing' || isLoading) return;
 
     const createAccount = async () => {
       try {
@@ -96,19 +96,19 @@ export function StripeSetupModal({
         const accountLink = accountLinkCreation.data.accountLink as string;
         setState('account_created');
         // Start countdown
-        const countdownInterval = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev <= 1) {
-              clearInterval(countdownInterval);
-              setState('redirecting');
-              globalThis.location.href = accountLink;
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
+        // const countdownInterval = setInterval(() => {
+        //   setCountdown((prev) => {
+        //     if (prev <= 1) {
+        //       clearInterval(countdownInterval);
+        //       setState('redirecting');
+        //       globalThis.location.href = accountLink;
+        //       return 0;
+        //     }
+        //     return prev - 1;
+        //   });
+        // }, 1000);
 
-        return () => clearInterval(countdownInterval);
+        // return () => clearInterval(countdownInterval);
       } catch (err) {
         console.error('[v0] Stripe setup error:', err);
         setState('error');

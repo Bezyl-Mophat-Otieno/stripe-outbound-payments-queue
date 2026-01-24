@@ -12,6 +12,9 @@ export default function DashboardPage() {
   const { user, isLoading, isStripeOnboarded } = useAuth();
   const [showStripeModal, setShowStripeModal] = useState(!isStripeOnboarded);
 
+  console.log("isStripeOnboarded", isStripeOnboarded)
+  console.log("showStripeModal", showStripeModal)
+
   useEffect(() => {
     if (!user) {
       router.push('/login');
