@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
     }
 
-    const userList = await db.select().from(users).where(eq(users.email, email));
+    const userList = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
     if (userList.length === 0) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        user: { id: user.id, fullName: user.fullName, email: user.email },
+        user: { ...user },
         accessToken,
         refreshToken,
       },
