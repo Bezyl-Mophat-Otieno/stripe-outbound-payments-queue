@@ -1,5 +1,6 @@
 'use client';
 import { useAuthStore } from '@/store/auth-store';
+import { ApiResponse } from '@/types';
 import { useEffect, useState } from 'react';
 
 export const useAuth = () => {
@@ -16,8 +17,8 @@ export const useAuth = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setLoggedInUser(data.user);
+        const jsonResponse = await response.json() as ApiResponse;
+        setLoggedInUser(jsonResponse.data.user);
       } else if (response.status === 401) {
         // Try to refresh token
         const refreshToken = localStorage.getItem('refreshToken');
@@ -48,8 +49,8 @@ export const useAuth = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        const newToken = data.accessToken || response.headers.get('x-access-token');
+        const jsonResponse = await response.json() as ApiResponse;
+        const newToken = jsonResponse.data.accessToken || response.headers.get('x-access-token');
         if (newToken) {
           localStorage.setItem('accessToken', newToken);
           return newToken;
@@ -64,21 +65,20 @@ export const useAuth = () => {
   async function login(email: string, password: string) {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/login', {
+      const loginResponse = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Login failed');
-      }
 
-      const data = await response.json();
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
-      setLoggedInUser(data.user);
+      const login = await loginResponse.json() as ApiResponse;
+      if(!login.success){
+          throw new Error(login.message);
+      }
+      localStorage.setItem('accessToken', login.data.accessToken);
+      localStorage.setItem('refreshToken', login.data.refreshToken);
+      setLoggedInUser(login.data.user);
     } finally {
       setIsLoading(false);
     }

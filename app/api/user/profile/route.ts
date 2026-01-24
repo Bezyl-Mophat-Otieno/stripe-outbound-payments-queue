@@ -10,33 +10,30 @@ export async function GET(request: NextRequest) {
     const token = authHeader?.replace('Bearer ', '');
 
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 
     const decoded = verifyAccessToken(token);
 
     if (!decoded) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      return NextResponse.json({success: false, message: 'Invalid token' }, { status: 401 });
     }
 
     const userList = await db.select().from(users).where(eq(users.id, decoded.userId));
 
     if (userList.length === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({success: false, message: 'User not found' }, { status: 404 });
     }
 
     const user = userList[0];
 
     return NextResponse.json({
-      user: {
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email,
-        stripeAccountId: user.stripeAccountId,
-      },
+      success: true,
+      message: 'User profile fetched successfully',
+      data: {user}
     });
   } catch (error) {
-    console.error('[v0] Get profile error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('[v0] Get profile message:', error);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }

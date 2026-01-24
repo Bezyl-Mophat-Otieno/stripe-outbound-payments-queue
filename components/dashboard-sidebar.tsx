@@ -64,7 +64,7 @@ export function DashboardSidebar() {
         <Button
           onClick={handleLogout}
           variant="outline"
-          className="w-full gap-2 border-border hover:bg-muted bg-transparent"
+          className="w-full gap-2 border-border hover:bg-muted bg-transparent cursor-pointer"
         >
           <LogOut className="w-4 h-4" />
           Logout

@@ -6,19 +6,19 @@ export async function POST(request: NextRequest) {
     const refreshToken = request.headers.get('x-refresh-token');
 
     if (!refreshToken) {
-      return NextResponse.json({ error: 'Refresh token required' }, { status: 401 });
+      return NextResponse.json({success: false, message: 'Refresh token required' }, { status: 401 });
     }
 
     const decoded = verifyRefreshToken(refreshToken);
 
     if (!decoded) {
-      return NextResponse.json({ error: 'Invalid refresh token' }, { status: 401 });
+      return NextResponse.json({success: false, message: 'Invalid refresh token' }, { status: 401 });
     }
 
     const newAccessToken = generateAccessToken(decoded.userId);
 
     return NextResponse.json(
-      { accessToken: newAccessToken },
+      { success: true, message: 'Access token refreshed successfully', data: { accessToken: newAccessToken }},
       {
         status: 200,
         headers: {
@@ -28,6 +28,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('[v0] Refresh token error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({success: false, message: 'Internal server error' }, { status: 500 });
   }
 }

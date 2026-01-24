@@ -12,35 +12,39 @@ export async function POST(request: NextRequest) {
     const { fullName, email, password } = body;
 
     if (!fullName || !email || !password) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'Missing required fields' }, { status: 400 });
     }
 
     // Check if user exists
     const existingUser = await db.select().from(users).where(eq(users.email, email));
 
     if (existingUser.length > 0) {
-      return NextResponse.json({ error: 'Email already exists' }, { status: 409 });
+      return NextResponse.json({ success: false, message: 'Email already exists' }, { status: 409 });
     }
 
     const hashedPassword = await hashPassword(password);
     const userId = uuidv4();
 
-    await db.insert(users).values({
+    const user = await db.insert(users).values({
       id: userId,
       fullName,
       email,
       password,
       hashedPassword,
-    });
+    }).returning();
 
     const accessToken = generateAccessToken(userId);
     const refreshToken = generateRefreshToken(userId);
 
     return NextResponse.json(
       {
-        user: { id: userId, fullName, email },
+        success: true,
+        message: "User signed up successfully",
+        data: { 
+        user,         
         accessToken,
-        refreshToken,
+        refreshToken, 
+       },
       },
       {
         status: 201,
@@ -51,6 +55,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('[v0] Signup error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }
 }

@@ -11,20 +11,20 @@ export async function POST(request: NextRequest) {
     const { email, password } = body;
 
     if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
+      return NextResponse.json({success: false, message: 'Email and password required' }, { status: 400 });
     }
 
     const userList = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
     if (userList.length === 0) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      return NextResponse.json({ success: false, message: 'Invalid credentials' }, { status: 401 });
     }
 
     const user = userList[0];
     const passwordMatch = await verifyPassword(password, user.hashedPassword);
 
     if (!passwordMatch) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      return NextResponse.json({ success: false, message: 'Invalid credentials' }, { status: 401 });
     }
 
     const accessToken = generateAccessToken(user.id);
@@ -32,9 +32,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        user: { ...user },
+        success: true,
+        message: "User logged in successfully",
+        data: { 
+        user,         
         accessToken,
-        refreshToken,
+        refreshToken, 
+       },
       },
       {
         status: 200,
@@ -45,6 +49,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('[v0] Login error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({success: false, messge: 'Internal server error' }, { status: 500 });
   }
 }

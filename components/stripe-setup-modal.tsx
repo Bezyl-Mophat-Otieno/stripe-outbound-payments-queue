@@ -96,19 +96,19 @@ export function StripeSetupModal({
         const accountLink = accountLinkCreation.data.accountLink as string;
         setState('account_created');
         // Start countdown
-        // const countdownInterval = setInterval(() => {
-        //   setCountdown((prev) => {
-        //     if (prev <= 1) {
-        //       clearInterval(countdownInterval);
-        //       setState('redirecting');
-        //       globalThis.location.href = accountLink;
-        //       return 0;
-        //     }
-        //     return prev - 1;
-        //   });
-        // }, 1000);
+        const countdownInterval = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev <= 1) {
+              clearInterval(countdownInterval);
+              setState('redirecting');
+              globalThis.location.href = accountLink;
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
 
-        // return () => clearInterval(countdownInterval);
+        return () => clearInterval(countdownInterval);
       } catch (err) {
         console.error('[v0] Stripe setup error:', err);
         setState('error');
