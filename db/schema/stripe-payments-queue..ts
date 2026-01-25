@@ -24,7 +24,7 @@ export const stripePaymentsQueue = pgTable('stripe_payments_queue', {
   queueId: uuid('queueId').defaultRandom().primaryKey(),
   status: queueStatus('queue_status').default('enqueued'),
   stripeOutboundId: varchar('stripe_outbound_id'),
-  metadata: jsonb('payload').$type<PaymentDetails>().notNull(),
+  metadata: jsonb('metadata').$type<PaymentDetails>().notNull(),
   retries: integer('retries').default(0).notNull(),
   lastFailureMessage: text('last_failure_message'),
   ttl: timestamp('ttl', { withTimezone: true }),

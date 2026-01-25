@@ -3,7 +3,7 @@ import { env } from '@/env';
 import { db } from '@/lib/db';
 import { verifyAccessToken } from '@/lib/jwt';
 import { StripeOutboundPaymentParams, stripeService } from '@/lib/services/stripe-service';
-import { and, eq, ne } from 'drizzle-orm';
+import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -19,14 +19,38 @@ export async function POST(request: NextRequest) {
     if (!jwtPayload)
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
 
-    const earliestEnqueuedItems = await db
-      .select()
-      .from(stripePaymentsQueue)
-      .where(and(eq(stripePaymentsQueue.status, 'enqueued'), ne(stripePaymentsQueue.retries, 3)))
-      .orderBy(stripePaymentsQueue.createdAt)
-      .limit(Number(env.STRIPE_BATCH_SIZE));
+    const claimedWork = await db.transaction(async (tx) => {
+    const result = await tx.execute(sql`
+      SELECT *
+      FROM ${stripePaymentsQueue}
+      WHERE queue_status = 'enqueued'
+        AND retries < 3
+      ORDER BY created_at
+      LIMIT ${env.STRIPE_BATCH_SIZE}
+      FOR UPDATE SKIP LOCKED
+    `);
 
-    const sentToStripe = await Promise.all(earliestEnqueuedItems.map((item) => sendPayment(item)));
+    const rows = result.rows as unknown as EnqueuedStripeItem[];
+
+    if (rows.length === 0) return [];
+
+    const ids = rows.map(r => r.queueId);
+
+    await tx
+      .update(stripePaymentsQueue)
+      .set({
+        status: 'processing',
+        updatedAt: new Date(),
+      })
+      .where(inArray(stripePaymentsQueue.queueId, ids));
+
+    return rows;
+  });
+
+  console.log('claiming work from stripe queue', claimedWork);
+
+
+    const sentToStripe = await Promise.all(claimedWork.map((item) => sendPayment(item)));
     const stats = sentToStripe.reduce(
       (acc, item) => {
         if (item.success) {
@@ -86,7 +110,7 @@ const sendPayment = async (
       const outboundPayment = await stripeService.makePayment(payload, item.queueId);
   
       if (!outboundPayment.id) {
-        throw new Error('Failed to create outbound payment');
+        throw new Error('Failed to create an outbound payment');
       }
       const now = new Date();
       const ttl = new Date(now.getTime() + 24 * 60 * 60 * 1000);
