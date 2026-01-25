@@ -15,6 +15,13 @@
       "when": 1768929463886,
       "tag": "0001_lame_mongoose",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769340981147,
+      "tag": "0002_yielding_logan",
+      "breakpoints": true
     }
   ]
 }
