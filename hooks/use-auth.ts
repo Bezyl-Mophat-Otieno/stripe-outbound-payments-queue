@@ -17,7 +17,7 @@ export const useAuth = () => {
       });
 
       if (response.ok) {
-        const jsonResponse = await response.json() as ApiResponse;
+        const jsonResponse = (await response.json()) as ApiResponse;
         setLoggedInUser(jsonResponse.data.user);
       } else if (response.status === 401) {
         // Try to refresh token
@@ -49,7 +49,7 @@ export const useAuth = () => {
       });
 
       if (response.ok) {
-        const jsonResponse = await response.json() as ApiResponse;
+        const jsonResponse = (await response.json()) as ApiResponse;
         const newToken = jsonResponse.data.accessToken || response.headers.get('x-access-token');
         if (newToken) {
           localStorage.setItem('accessToken', newToken);
@@ -71,10 +71,9 @@ export const useAuth = () => {
         body: JSON.stringify({ email, password }),
       });
 
-
-      const login = await loginResponse.json() as ApiResponse;
-      if(!login.success){
-          throw new Error(login.message);
+      const login = (await loginResponse.json()) as ApiResponse;
+      if (!login.success) {
+        throw new Error(login.message);
       }
       localStorage.setItem('accessToken', login.data.accessToken);
       localStorage.setItem('refreshToken', login.data.refreshToken);

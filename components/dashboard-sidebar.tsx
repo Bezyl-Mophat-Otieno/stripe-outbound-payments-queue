@@ -46,10 +46,11 @@ export function DashboardSidebar() {
           return (
             <Link key={item.href} href={item.href}>
               <button
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground hover:bg-secondary'
-                  }`}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
+                  isActive
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-foreground hover:bg-secondary'
+                }`}
               >
                 <Icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>

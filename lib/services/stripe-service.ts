@@ -23,6 +23,68 @@ export interface StripeAccountSetupParams {
   };
 }
 
+export interface StripeOutboundPaymentParams {
+  from: {
+    financial_account: string;
+    currency: 'usd';
+  };
+  to: {
+    recipient: string;
+    currency: 'usd';
+  };
+  delivery_options: {
+    bank_account: 'automatic' | 'local' | 'wire';
+  };
+  amount: {
+    value: number;
+    currency: 'usd';
+  };
+  recipient_notification: {
+    setting: 'none' | 'configured';
+  };
+  description: string;
+  metadata: Record<string, any>;
+}
+
+export interface StripeOutboundPayment {
+  id: string;
+  object: string;
+  from: {
+    financial_account: string;
+    debited: {
+      value: number;
+      currency: 'usd';
+    };
+  };
+  to: {
+    credited: {
+      value: number;
+      currency: 'usd';
+    };
+    recipient: string;
+    payout_method: string;
+  };
+  delivery_options: {
+    bank_account: 'automatic' | 'local' | 'wire';
+  };
+  amount: {
+    value: number;
+    currency: 'usd';
+  };
+  statement_descriptor: string;
+  cancelable: boolean;
+  description: string;
+  status: string;
+  status_transitions: {};
+  receipt_url: string;
+  created: string;
+  expected_arrival_date: string;
+  recipient_notification: {
+    setting: 'none' | 'configured';
+  };
+  livemode: boolean;
+}
+
 export type StripeAccountLinkParams = Stripe.V2.Core.AccountLinkCreateParams;
 
 export interface Account {
@@ -198,6 +260,27 @@ class StripeService {
   }
 
   /**
+   * Make an outbound payment
+   */
+  async makePayment(
+    params: StripeOutboundPaymentParams,
+    key: string
+  ): Promise<StripeOutboundPayment> {
+    try {
+      const data = await fetch(`${env.STRIPE_BASE_URL}/outbound_payments`, {
+        method: 'POST',
+        body: JSON.stringify(params),
+        headers: { ...this.stripeHeaders, 'Idempotency-Key': key },
+      });
+      const jsonResponse = await data.json();
+      return jsonResponse;
+    } catch (error) {
+      console.error('[Stripe] Error Making an outbound payment', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get account details
    */
   async getAccountDetails(accountId: string): Promise<Account> {
@@ -225,13 +308,6 @@ class StripeService {
       console.error('[Stripe] Error deleting account:', error);
       throw error;
     }
-  }
-
-  /**
-   * Get the Stripe client instance for advanced operations
-   */
-  getClient(): Stripe {
-    return this.client;
   }
 }
 

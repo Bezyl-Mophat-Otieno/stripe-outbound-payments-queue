@@ -16,13 +16,13 @@ export async function GET(request: NextRequest) {
     const decoded = verifyAccessToken(token);
 
     if (!decoded) {
-      return NextResponse.json({success: false, message: 'Invalid token' }, { status: 401 });
+      return NextResponse.json({ success: false, message: 'Invalid token' }, { status: 401 });
     }
 
     const userList = await db.select().from(users).where(eq(users.id, decoded.userId));
 
     if (userList.length === 0) {
-      return NextResponse.json({success: false, message: 'User not found' }, { status: 404 });
+      return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
     }
 
     const user = userList[0];
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'User profile fetched successfully',
-      data: {user}
+      data: { user },
     });
   } catch (error) {
     console.error('[v0] Get profile message:', error);

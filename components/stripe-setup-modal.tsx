@@ -163,7 +163,7 @@ export function StripeSetupModal({
                   Stripe account created successfully!
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Redirecting you to Stripe in {countdown} second{countdown !== 1 ? 's' : ''}...
+                  Redirecting you to Stripe in {countdown} second{countdown > 1 ? 's' : ''}...
                 </p>
               </div>
             </>

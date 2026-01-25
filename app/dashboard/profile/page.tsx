@@ -9,7 +9,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { DashboardSidebar } from '@/components/dashboard-sidebar';
 import { ApiResponse } from '@/types';
 
-
 export default function ProfilePage() {
   const router = useRouter();
   const { user, isLoading, isStripeOnboarded } = useAuth();
@@ -35,12 +34,12 @@ export default function ProfilePage() {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-            }
+            },
           }
         );
-        const paymentStatusResponse = await response.json() as ApiResponse;
+        const paymentStatusResponse = (await response.json()) as ApiResponse;
         if (!paymentStatusResponse.success) {
-          return setError(paymentStatusResponse.message)
+          return setError(paymentStatusResponse.message);
         }
         setPaymentStatus(paymentStatusResponse.data.hasPaymentSetup as boolean);
       } catch (err) {
@@ -172,7 +171,11 @@ export default function ProfilePage() {
                     <CardTitle>Stripe Account</CardTitle>
                     <CardDescription>Manage your connected Stripe account</CardDescription>
                   </div>
-                  <Button onClick={handleUpdateStripeAccount} className="gap-2 cursor-pointer" size="sm">
+                  <Button
+                    onClick={handleUpdateStripeAccount}
+                    className="gap-2 cursor-pointer"
+                    size="sm"
+                  >
                     <ArrowUpRight className="w-4 h-4" />
                     Update Details
                   </Button>

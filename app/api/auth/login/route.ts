@@ -11,7 +11,10 @@ export async function POST(request: NextRequest) {
     const { email, password } = body;
 
     if (!email || !password) {
-      return NextResponse.json({success: false, message: 'Email and password required' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: 'Email and password required' },
+        { status: 400 }
+      );
     }
 
     const userList = await db.select().from(users).where(eq(users.email, email)).limit(1);
@@ -33,12 +36,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: "User logged in successfully",
-        data: { 
-        user,         
-        accessToken,
-        refreshToken, 
-       },
+        message: 'User logged in successfully',
+        data: {
+          user,
+          accessToken,
+          refreshToken,
+        },
       },
       {
         status: 200,
@@ -49,6 +52,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('[v0] Login error:', error);
-    return NextResponse.json({success: false, messge: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ success: false, messge: 'Internal server error' }, { status: 500 });
   }
 }
