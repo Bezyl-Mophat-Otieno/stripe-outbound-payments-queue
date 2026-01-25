@@ -9,8 +9,10 @@
     "lint": "eslint . --fix",
     "format": "prettier --write .",
     "prepare": "husky install",
+    "list-routes": "next-list",
     "generate": "npx drizzle-kit generate",
-    "migrate": "npx drizzle-kit migrate"
+    "migrate": "npx drizzle-kit migrate",
+    "db": "npx drizzle-kit studio"
   },
   "dependencies": {
     "@aws-sdk/client-rds-data": "latest",
@@ -113,6 +115,7 @@
     "eslint-config-prettier": "^10.1.8",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.2",
+    "next-list": "^1.0.18",
     "postcss": "^8.5",
     "prettier": "^3.8.1",
     "stripe": "^20.2.0",

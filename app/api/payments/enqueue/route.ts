@@ -1,4 +1,5 @@
 import { enqueueSchema, stripePaymentsQueue } from '@/db/schema/stripe-payments-queue.';
+import { env } from '@/env';
 import { db } from '@/lib/db';
 import { verifyAccessToken } from '@/lib/jwt';
 import { NextRequest, NextResponse } from 'next/server';
@@ -16,11 +17,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
 
     const body = await request.json();
-    const validatedPayload = enqueueSchema.parse(body);
+    const validatedPayload = enqueueSchema.omit({
+      from: true
+    }).parse(body);
 
     const [enqueued] = await db
       .insert(stripePaymentsQueue)
-      .values({ metadata: validatedPayload })
+      .values({ metadata: { ...validatedPayload, from: env.STRIPE_FINANCIAL_ACCOUNTID} })
       .returning();
     if (!enqueued)
       return NextResponse.json(

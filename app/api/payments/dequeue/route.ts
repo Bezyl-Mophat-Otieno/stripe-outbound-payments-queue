@@ -40,8 +40,7 @@ export async function POST(request: NextRequest) {
     );
     return NextResponse.json({
       success: true,
-      message: `${stats.successes} Payments sent to stripe for processing successfully.
-      ${stats.failures} Payments have had issues either getting sent out to stripe for processing or issues with the db persistence, kindly investigate.`,
+      message: `${stats.successes} Payments sent to stripe for processing.${stats.failures} Payments failed to be sent out to stripe for processing`,
     });
   } catch (error) {
     console.error('Dnqueueing error:', error);
@@ -83,7 +82,12 @@ const sendPayment = async (
         metadata: {},
       };
 
+
       const outboundPayment = await stripeService.makePayment(payload, item.queueId);
+  
+      if (!outboundPayment.id) {
+        throw new Error('Failed to create outbound payment');
+      }
       const now = new Date();
       const ttl = new Date(now.getTime() + 24 * 60 * 60 * 1000);
       await db
@@ -92,6 +96,7 @@ const sendPayment = async (
         .where(eq(stripePaymentsQueue.queueId, item.queueId));
       return { success: Boolean(outboundPayment.id), queueId: item.queueId };
     } catch (error) {
+      console.log(error)
       attempt++;
       errorMsg =
         (error as Error).message ?? 'Something went wrong while processing stripe outbound payment';

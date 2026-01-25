@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const JWT_REFRESH_SECRET =
   process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-change-in-production';
-const JWT_EXPIRY = '15m';
+const JWT_EXPIRY = '7d' //For testing purposes. Ideally it should be 15m;
 const JWT_REFRESH_EXPIRY = '7d';
 
 export function generateAccessToken(userId: string) {
