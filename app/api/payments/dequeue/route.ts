@@ -3,10 +3,10 @@ import { env } from '@/env';
 import { db } from '@/lib/db';
 import { verifyAccessToken } from '@/lib/jwt';
 import { StripeOutboundPaymentParams, stripeService } from '@/lib/services/stripe-service';
-import { and, eq, inArray, ne, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Get user ID from the Authorization header
     const authHeader = request.headers.get('authorization');
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
 
     const claimedWork = await db.transaction(async (tx) => {
-    const result = await tx.execute(sql`
+      const result = await tx.execute(sql`
       SELECT *
       FROM ${stripePaymentsQueue}
       WHERE queue_status = 'enqueued'
@@ -30,25 +30,22 @@ export async function POST(request: NextRequest) {
       FOR UPDATE SKIP LOCKED
     `);
 
-    const rows = result.rows as unknown as EnqueuedStripeItem[];
+      const rows = result.rows as unknown as EnqueuedStripeItem[];
 
-    if (rows.length === 0) return [];
+      if (rows.length === 0) return [];
 
-    const ids = rows.map(r => r.queueId);
+      const ids = rows.map((r) => r.queueId);
 
-    await tx
-      .update(stripePaymentsQueue)
-      .set({
-        status: 'processing',
-        updatedAt: new Date(),
-      })
-      .where(inArray(stripePaymentsQueue.queueId, ids));
+      await tx
+        .update(stripePaymentsQueue)
+        .set({
+          status: 'processing',
+          updatedAt: new Date(),
+        })
+        .where(inArray(stripePaymentsQueue.queueId, ids));
 
-    return rows;
-  });
-
-  console.log('claiming work from stripe queue', claimedWork);
-
+      return rows;
+    });
 
     const sentToStripe = await Promise.all(claimedWork.map((item) => sendPayment(item)));
     const stats = sentToStripe.reduce(
@@ -108,7 +105,9 @@ const sendPayment = async (
 
 
       const outboundPayment = await stripeService.makePayment(payload, item.queueId);
-  
+
+      console.log('outboundPayment', outboundPayment)
+
       if (!outboundPayment.id) {
         throw new Error('Failed to create an outbound payment');
       }
@@ -120,7 +119,7 @@ const sendPayment = async (
         .where(eq(stripePaymentsQueue.queueId, item.queueId));
       return { success: Boolean(outboundPayment.id), queueId: item.queueId };
     } catch (error) {
-      console.log(error)
+      console.log(error);
       attempt++;
       errorMsg =
         (error as Error).message ?? 'Something went wrong while processing stripe outbound payment';

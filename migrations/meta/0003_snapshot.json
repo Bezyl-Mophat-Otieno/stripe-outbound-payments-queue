@@ -139,9 +139,7 @@
         "stripe_users_email_unique": {
           "name": "stripe_users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -153,12 +151,7 @@
     "public.queue_status": {
       "name": "queue_status",
       "schema": "public",
-      "values": [
-        "enqueued",
-        "processing",
-        "dequeued",
-        "failed"
-      ]
+      "values": ["enqueued", "processing", "dequeued", "failed"]
     }
   },
   "schemas": {},

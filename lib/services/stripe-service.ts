@@ -23,6 +23,49 @@ export interface StripeAccountSetupParams {
   };
 }
 
+export interface StripeFinancialAccountParams {
+  type: 'storage';
+  storage: {
+    holds_currencies: string[];
+  };
+  display_name: string;
+}
+
+export interface StripeFinancialAccount {
+  id: string;
+  object: string;
+  balance: {
+    available: {
+      usd: {
+        value: number;
+        currency: string;
+      };
+    };
+    inbound_pending: {
+      usd: {
+        value: number;
+        currency: string;
+      };
+    };
+    outbound_pending: {
+      usd: {
+        value: number;
+        currency: string;
+      };
+    };
+  };
+  country: string;
+  created: string;
+  display_name: string;
+  livemode: boolean;
+  metadata: null;
+  status: 'pending' | 'closed' | 'open';
+  storage: {
+    holds_currencies: string[];
+  };
+  type: string;
+}
+
 export interface StripeOutboundPaymentParams {
   from: {
     financial_account: string;
@@ -260,6 +303,26 @@ class StripeService {
   }
 
   /**
+   * Create a financial account
+   */
+  async createFinancialAccount(
+    params: StripeFinancialAccountParams
+  ): Promise<StripeFinancialAccount> {
+    try {
+      const data = await fetch(`${env.STRIPE_BASE_URL}/money_management/financial_accounts`, {
+        method: 'POST',
+        body: JSON.stringify(params),
+        headers: this.stripeHeaders,
+      });
+      const jsonResponse = await data.json();
+      return jsonResponse;
+    } catch (error) {
+      console.error('[Stripe] Error creating a financial account', error);
+      throw error;
+    }
+  }
+
+  /**
    * Make an outbound payment
    */
   async makePayment(
@@ -267,7 +330,7 @@ class StripeService {
     key: string
   ): Promise<StripeOutboundPayment> {
     try {
-      const data = await fetch(`${env.STRIPE_BASE_URL}/outbound_payments`, {
+      const data = await fetch(`${env.STRIPE_BASE_URL}/money_management/outbound_payments`, {
         method: 'POST',
         body: JSON.stringify(params),
         headers: { ...this.stripeHeaders, 'Idempotency-Key': key },
