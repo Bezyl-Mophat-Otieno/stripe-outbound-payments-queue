@@ -30,7 +30,7 @@ export default function ProfilePage() {
         const token = localStorage.getItem('accessToken');
 
         const response = await fetch(
-          `/api/payments/stripe/check-payment-status/${user?.stripeAccountId}`,
+          `/api/payments/stripe/check-payment-details-setup/${user?.stripeAccountId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
