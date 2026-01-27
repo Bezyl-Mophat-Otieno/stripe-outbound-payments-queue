@@ -4,11 +4,12 @@ import { ApiResponse } from '@/types';
 import { useEffect, useState } from 'react';
 
 export const useAuth = () => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { setLoggedInUser, clearLoggedInUser, user, isStripeOnboarded, updateLoggedInUser } =
     useAuthStore();
 
   async function fetchProfile(token: string) {
+    setIsLoading(true)
     try {
       const response = await fetch('/api/user/profile', {
         headers: {
