@@ -58,7 +58,7 @@ export function StripeSetupModal({
         setState('creating_account');
         const token = localStorage.getItem('accessToken');
 
-        const setupResponse = await fetch('/api/payments/stripe/account-setup', {
+        const setupResponse = await fetch('/api/payments/stripe/v2/account-setup', {
           method: 'POST',
           body: JSON.stringify({ fullName: user.fullName, email: user.email }),
           headers: {
@@ -73,7 +73,7 @@ export function StripeSetupModal({
         const stripeAccountId = accountCreation.data.stripeAccountId as string;
         updateLoggedInUser({ ...user, stripeAccountId: stripeAccountId });
         // Generate account link
-        const linkResponse = await fetch('/api/payments/stripe/account-link', {
+        const linkResponse = await fetch('/api/payments/stripe/v2/account-link', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users } from '@/db/schema/users';
-import { stripeService } from '@/lib/services/stripe-service';
+import { stripeService } from '@/lib/services/stripe-service-v2';
 import { z } from 'zod';
 import { verifyAccessToken } from '@/lib/jwt';
 

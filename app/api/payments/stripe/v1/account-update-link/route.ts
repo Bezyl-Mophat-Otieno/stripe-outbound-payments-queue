@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users } from '@/db/schema/users';
-import { stripeService } from '@/lib/services/stripe-service';
+import { stripeService } from '@/lib/services/stripe-service-v1';
 import z from 'zod';
 import { verifyAccessToken } from '@/lib/jwt';
 
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate account update link
-    const updateLink = await stripeService.createUpdateLink(user.stripeAccountId);
+    const updateLink = await stripeService.createAccountLink(user.stripeAccountId,'update');
 
     if (!updateLink || !z.url().safeParse(updateLink).success)
       NextResponse.json(

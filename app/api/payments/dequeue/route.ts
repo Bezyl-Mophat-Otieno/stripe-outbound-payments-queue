@@ -2,7 +2,7 @@ import { EnqueuedStripeItem, stripePaymentsQueue } from '@/db/schema/stripe-paym
 import { env } from '@/env';
 import { db } from '@/lib/db';
 import { verifyAccessToken } from '@/lib/jwt';
-import { StripeOutboundPaymentParams, stripeService } from '@/lib/services/stripe-service';
+import { StripeOutboundPaymentParams, stripeService } from '@/lib/services/stripe-service-v2';
 import { eq, inArray, sql } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -83,18 +83,19 @@ const sendPayment = async (
       const payload: StripeOutboundPaymentParams = {
         from: {
           financial_account: item.metadata.from,
-          currency: 'usd',
+          balance_type: 'storage',
         },
         to: {
           recipient: item.metadata.to,
-          currency: 'usd',
         },
-        delivery_options: {
+        method: {
           bank_account: 'automatic',
         },
-        amount: {
-          value: item.metadata.amount,
-          currency: 'usd',
+        money_movement_amounts: {
+          source: {
+            value: item.metadata.amount,
+            currency: 'usd',
+          },
         },
         recipient_notification: {
           setting: 'none',
@@ -103,10 +104,8 @@ const sendPayment = async (
         metadata: {},
       };
 
-
       const outboundPayment = await stripeService.makePayment(payload, item.queueId);
 
-      console.log('outboundPayment', outboundPayment)
 
       if (!outboundPayment.id) {
         throw new Error('Failed to create an outbound payment');

@@ -1,5 +1,5 @@
 import { verifyAccessToken } from '@/lib/jwt';
-import { stripeService } from '@/lib/services/stripe-service';
+import { stripeService } from '@/lib/services/stripe-service-v2';
 import { NextRequest, NextResponse } from 'next/server';
 import z from 'zod';
 const AccountLinkSetupSchema = z.object({

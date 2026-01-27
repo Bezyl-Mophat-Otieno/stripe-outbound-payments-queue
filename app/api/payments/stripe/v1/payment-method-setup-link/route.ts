@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { users } from '@/db/schema/users';
-import { stripeService } from '@/lib/services/stripe-service';
+import { stripeService } from '@/lib/services/stripe-service-v1';
 import { verifyAccessToken } from '@/lib/jwt';
 
 export async function POST(request: NextRequest) {
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       );
     }
     // Generate account link for payment method setup (account_update type)
-    const paymentMethodLink = await stripeService.createUpdateLink(user.stripeAccountId);
+    const paymentMethodLink = await stripeService.createAccountLink(user.stripeAccountId, 'update');
 
     return NextResponse.json({
       success: true,

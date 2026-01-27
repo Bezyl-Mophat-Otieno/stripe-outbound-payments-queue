@@ -30,7 +30,7 @@ export default function ProfilePage() {
         const token = localStorage.getItem('accessToken');
 
         const response = await fetch(
-          `/api/payments/stripe/check-payment-details-setup/${user?.stripeAccountId}`,
+          `/api/payments/stripe/v2/check-payment-details-setup/${user?.stripeAccountId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -57,7 +57,7 @@ export default function ProfilePage() {
   async function handleUpdateStripeAccount() {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('/api/payments/stripe/account-update-link', {
+      const response = await fetch('/api/payments/stripe/v2/account-update-link', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -78,7 +78,7 @@ export default function ProfilePage() {
   async function handleSetupPaymentMethod() {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('/api/payments/stripe/payment-method-setup-link', {
+      const response = await fetch('/api/payments/stripe/v2/payment-method-setup-link', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

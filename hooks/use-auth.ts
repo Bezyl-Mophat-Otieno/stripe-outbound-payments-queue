@@ -86,21 +86,19 @@ export const useAuth = () => {
   async function signup(fullName: string, email: string, password: string) {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/signup', {
+      const signupResponse = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fullName, email, password }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Signup failed');
+      const signup = await signupResponse.json();
+      if (!signup.success) {
+        throw new Error(signup.message);
       }
-
-      const data = await response.json();
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
-      setLoggedInUser(data.user);
+      localStorage.setItem('accessToken', signup.data.accessToken);
+      localStorage.setItem('refreshToken', signup.data.refreshToken);
+      setLoggedInUser(signup.data.user);
     } finally {
       setIsLoading(false);
     }

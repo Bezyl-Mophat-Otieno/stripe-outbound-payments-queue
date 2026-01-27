@@ -66,21 +66,23 @@ export interface StripeFinancialAccount {
   type: string;
 }
 
+
 export interface StripeOutboundPaymentParams {
   from: {
     financial_account: string;
-    currency: 'usd';
+    balance_type: 'storage';
   };
   to: {
     recipient: string;
-    currency: 'usd';
   };
-  delivery_options: {
+  method: {
     bank_account: 'automatic' | 'local' | 'wire';
   };
-  amount: {
-    value: number;
-    currency: 'usd';
+  money_movement_amounts: {
+    source: {
+      value: number;
+      currency: 'usd';
+    };
   };
   recipient_notification: {
     setting: 'none' | 'configured';
@@ -321,7 +323,6 @@ class StripeService {
       throw error;
     }
   }
-
   /**
    * Make an outbound payment
    */
@@ -330,7 +331,7 @@ class StripeService {
     key: string
   ): Promise<StripeOutboundPayment> {
     try {
-      const data = await fetch(`${env.STRIPE_BASE_URL}/money_management/outbound_payments`, {
+      const data = await fetch(`${env.STRIPE_BASE_URL}/outbound_payments`, {
         method: 'POST',
         body: JSON.stringify(params),
         headers: { ...this.stripeHeaders, 'Idempotency-Key': key },
