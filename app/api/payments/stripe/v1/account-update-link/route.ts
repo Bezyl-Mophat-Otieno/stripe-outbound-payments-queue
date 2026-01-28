@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate account update link
-    const updateLink = await stripeService.createAccountLink(user.stripeAccountId,'update');
+    const updateLink = await stripeService.createAccountLink(user.stripeAccountId, 'update');
 
     if (!updateLink || !z.url().safeParse(updateLink).success)
       NextResponse.json(

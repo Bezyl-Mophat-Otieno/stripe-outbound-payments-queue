@@ -66,7 +66,6 @@ export interface StripeFinancialAccount {
   type: string;
 }
 
-
 export interface StripeOutboundPaymentParams {
   from: {
     financial_account: string;
@@ -167,6 +166,12 @@ type DefaultOutboundDestination = {
   id: string;
   type: string;
 };
+
+export interface StripeEventParams {
+  payload: string | Buffer;
+  header: string | Buffer | Array<string>;
+  secret: string;
+}
 
 class StripeService {
   private readonly client: Stripe;
@@ -340,6 +345,41 @@ class StripeService {
       return jsonResponse;
     } catch (error) {
       console.error('[Stripe] Error Making an outbound payment', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Process OutboundTransfer Events
+   */
+  async parseOutboundEvent(outboundId: string) {
+    try {
+      const data = await fetch(
+        `${env.STRIPE_BASE_URL}/money_management/outbound_payments/${outboundId}`,
+        {
+          method: 'POST',
+          headers: this.stripeHeaders,
+        }
+      );
+
+      const jsonResponse = await data.json();
+      return jsonResponse;
+    } catch (error) {
+      console.error('[Stripe] Error parsingOutboundEvent:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Verify stripe events
+   */
+
+  async verifyStripeEvent(params: StripeEventParams) {
+    try {
+      const event = Stripe.webhooks.constructEvent(params.payload, params.header, params.secret);
+      return event;
+    } catch (error) {
+      console.error('[Stripe] Error verifying stripe event:', error);
       throw error;
     }
   }

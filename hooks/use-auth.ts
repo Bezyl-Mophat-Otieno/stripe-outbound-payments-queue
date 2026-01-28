@@ -9,7 +9,7 @@ export const useAuth = () => {
     useAuthStore();
 
   async function fetchProfile(token: string) {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const response = await fetch('/api/user/profile', {
         headers: {

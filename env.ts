@@ -10,6 +10,7 @@ const envSchema = z.object({
   STRIPE_FINANCIAL_ACCOUNTID: z.string().min(1),
   STRIPE_BATCH_SIZE: z.string().min(1),
   MAX_TRANSIENT_ERROR_RETRIES: z.string().min(1),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1),
 });
 
 export const env = envSchema.parse({
@@ -21,4 +22,5 @@ export const env = envSchema.parse({
   STRIPE_FINANCIAL_ACCOUNTID: process.env.STRIPE_FINANCIAL_ACCOUNTID,
   STRIPE_BATCH_SIZE: process.env.STRIPE_BATCH_SIZE,
   MAX_TRANSIENT_ERROR_RETRIES: process.env.MAX_TRANSIENT_ERROR_RETRIES,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
 });

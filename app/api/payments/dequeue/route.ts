@@ -106,7 +106,6 @@ const sendPayment = async (
 
       const outboundPayment = await stripeService.makePayment(payload, item.queueId);
 
-
       if (!outboundPayment.id) {
         throw new Error('Failed to create an outbound payment');
       }
