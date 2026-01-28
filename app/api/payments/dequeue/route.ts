@@ -1,4 +1,5 @@
 import { EnqueuedStripeItem, stripePaymentsQueue } from '@/db/schema/stripe-payments-queue.';
+import { transactions } from '@/db/schema/transactions';
 import { env } from '@/env';
 import { db } from '@/lib/db';
 import { verifyAccessToken } from '@/lib/jwt';
@@ -101,11 +102,10 @@ const sendPayment = async (
           setting: 'none',
         },
         description: 'string',
-        metadata: {},
+        metadata: { transactionId: item.metadata.transactionId },
       };
 
       const outboundPayment = await stripeService.makePayment(payload, item.queueId);
-
       if (!outboundPayment.id) {
         throw new Error('Failed to create an outbound payment');
       }
@@ -115,6 +115,10 @@ const sendPayment = async (
         .update(stripePaymentsQueue)
         .set({ updatedAt: now, ttl, stripeOutboundId: outboundPayment.id, status: 'dequeued' })
         .where(eq(stripePaymentsQueue.queueId, item.queueId));
+      await db
+        .update(transactions)
+        .set({ stripeOutboundId: outboundPayment.id })
+        .where(eq(transactions.id, item.metadata.transactionId));
       return { success: Boolean(outboundPayment.id), queueId: item.queueId };
     } catch (error) {
       console.log(error);

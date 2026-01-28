@@ -94,22 +94,19 @@ export interface StripeOutboundPayment {
   id: string;
   object: string;
   from: {
+    balance_type: 'storage';
     financial_account: string;
-    debited: {
-      value: number;
-      currency: 'usd';
-    };
   };
   to: {
-    credited: {
-      value: number;
-      currency: 'usd';
-    };
+    destination: string;
     recipient: string;
-    payout_method: string;
   };
-  delivery_options: {
+  method: {
     bank_account: 'automatic' | 'local' | 'wire';
+  };
+  money_movement_amounts: {
+    destination: { value: number; currency: 'usd' };
+    source: { value: number; currency: 'usd' };
   };
   amount: {
     value: number;
@@ -119,9 +116,10 @@ export interface StripeOutboundPayment {
   cancelable: boolean;
   description: string;
   status: string;
-  status_transitions: {};
+  status_transitions: Record<string, any>;
   receipt_url: string;
   created: string;
+  metadata: Record<string, any>;
   expected_arrival_date: string;
   recipient_notification: {
     setting: 'none' | 'configured';
@@ -171,6 +169,19 @@ export interface StripeEventParams {
   payload: string | Buffer;
   header: string | Buffer | Array<string>;
   secret: string;
+}
+
+export interface StripeEvent {
+  id: string;
+  object: string;
+  type: string;
+  livemode: boolean;
+  created: string;
+  related_object: {
+    id: string;
+    type: string;
+    url: string;
+  };
 }
 
 class StripeService {
@@ -352,15 +363,12 @@ class StripeService {
   /**
    * Process OutboundTransfer Events
    */
-  async parseOutboundEvent(outboundId: string) {
+  async parsedOutboundPayment(outboundId: string): Promise<StripeOutboundPayment> {
     try {
-      const data = await fetch(
-        `${env.STRIPE_BASE_URL}/money_management/outbound_payments/${outboundId}`,
-        {
-          method: 'POST',
-          headers: this.stripeHeaders,
-        }
-      );
+      const data = await fetch(`${env.STRIPE_BASE_URL}/outbound_payments/${outboundId}`, {
+        method: 'GET',
+        headers: this.stripeHeaders,
+      });
 
       const jsonResponse = await data.json();
       return jsonResponse;
@@ -374,10 +382,10 @@ class StripeService {
    * Verify stripe events
    */
 
-  async verifyStripeEvent(params: StripeEventParams) {
+  async verifyStripeEvent(params: StripeEventParams): Promise<StripeEvent> {
     try {
       const event = Stripe.webhooks.constructEvent(params.payload, params.header, params.secret);
-      return event;
+      return event as unknown as StripeEvent;
     } catch (error) {
       console.error('[Stripe] Error verifying stripe event:', error);
       throw error;

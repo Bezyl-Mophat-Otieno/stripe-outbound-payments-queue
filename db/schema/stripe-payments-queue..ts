@@ -15,6 +15,7 @@ export const enqueueSchema = z.object({
   to: z.string().min(1, 'To account is required'),
   amount: z.number(),
   currency: z.enum(['usd', 'kes']),
+  transactionId: z.string().min(1, 'Transactionid is required'),
 });
 
 export type PaymentDetails = z.infer<typeof enqueueSchema>;

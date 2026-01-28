@@ -6,14 +6,18 @@ import { NextResponse } from 'next/server';
 export async function DELETE() {
   try {
     const now = new Date();
-    await db
+    const deletedDequeuedItems = await db
       .delete(stripePaymentsQueue)
       .where(and(gte(stripePaymentsQueue.ttl, now), eq(stripePaymentsQueue.status, 'dequeued')))
       .returning();
 
     return NextResponse.json(
-      { success: true, message: 'Successfully processed payments cleaned up successfully' },
-      { status: 204 }
+      {
+        success: true,
+        message: 'Successfully cleaned up dequeued items.',
+        data: { deletedDequeuedItems },
+      },
+      { status: 200 }
     );
   } catch (error) {
     console.log(error);

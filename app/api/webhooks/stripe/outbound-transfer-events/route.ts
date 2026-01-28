@@ -1,5 +1,8 @@
+import { transactions, TransactionStatus } from '@/db/schema/transactions';
 import { env } from '@/env';
+import { db } from '@/lib/db';
 import { stripeService } from '@/lib/services/stripe-service-v2';
+import { eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -31,27 +34,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Bad request' }, { status: 400 });
     }
 
-    console.log(validatedStripeEvent.created);
+    const outboundTransfer = await stripeService.parsedOutboundPayment(
+      validatedStripeEvent?.related_object?.id
+    );
+    let outboundPaymentStatus: TransactionStatus;
 
     switch (validatedStripeEvent.type) {
-      case 'v2.money_management.outbound_payment.created':
-        console.log(`Payment to shopper created successfully at ${validatedStripeEvent.created}`);
-        break;
       case 'v2.money_management.outbound_transfer.canceled':
-        console.log(`Payment to shopper has been canceled at ${validatedStripeEvent.created}`);
-
+        outboundPaymentStatus = 'canceled';
         break;
       case 'v2.money_management.outbound_transfer.failed':
-        console.log(`Payment to shopper has failed at ${validatedStripeEvent.created}`);
-
+        outboundPaymentStatus = 'failed';
         break;
       case 'v2.money_management.outbound_payment.posted':
-        console.log(`Payment to shopper has been posted at ${validatedStripeEvent.created}`);
+        outboundPaymentStatus = 'posted';
         break;
+      case 'v2.money_management.outbound_payment.returned':
+        outboundPaymentStatus = 'returned';
+        break;
+      default:
+        outboundPaymentStatus = 'created';
     }
+    await db
+      .update(transactions)
+      .set({ status: outboundPaymentStatus })
+      .where(eq(transactions.id, outboundTransfer.metadata.transactionId));
 
     return NextResponse.json(
-      { success: true, message: 'Event Recieved Successfully' },
+      { success: true, message: 'Stripe Outbound Event Recieved Successfully' },
       { status: 200 }
     );
   } catch (error) {

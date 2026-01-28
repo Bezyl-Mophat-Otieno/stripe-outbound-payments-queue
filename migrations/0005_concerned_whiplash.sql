@@ -1,0 +1,1 @@
+ALTER TABLE "transactions" RENAME COLUMN "outbound_id" TO "stripe_outbound_id";
